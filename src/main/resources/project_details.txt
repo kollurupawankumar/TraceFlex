@@ -1,0 +1,154 @@
+Explanation of Key Components:
+Configuration Enhancements:
+
+Added include.methods for method-level instrumentation
+
+Added RocksDB path configuration
+
+Introduced MethodPattern to handle class.method combinations
+
+Added flush interval for periodic reporting
+
+RocksDB Integration:
+
+RocksDBManager handles database initialization and operations
+
+Uses Column Families for better data organization
+
+Serializes MethodStats objects for storage
+
+Automatic cleanup on JVM shutdown
+
+Enhanced Instrumentation:
+
+Method-level matching using wildcard patterns
+
+Bytecode injection for both method entry and exit
+
+Transaction tracing with call stack management
+
+Separate handling of individual metrics and transaction aggregates
+
+Transaction Context:
+
+Thread-local storage for transaction correlation
+
+Tracks method call hierarchy using a stack
+
+Aggregates statistics across transaction boundaries
+
+Automatically flushes to RocksDB when transaction completes
+
+Performance Considerations:
+
+Batch writes through periodic flushing
+
+In-memory aggregation before RocksDB writes
+
+Column Family usage for efficient querying
+
+Asynchronous reporting thread
+
+Data Model:
+
+Individual method metrics stored with methodId as key
+
+Transaction metrics stored with UUID as key
+
+MethodStats captures count, total time, min/max durations
+
+This implementation provides:
+
+Method-level instrumentation configuration
+
+Transaction tracing across distributed calls
+
+Persistent metric storage with RocksDB
+
+Thread-safe metric collection
+
+Low-overhead instrumentation
+
+Configurable flush intervals
+
+Automatic resource cleanup
+
+Rich method statistics collection
+
+The agent can be extended with additional features like:
+
+Custom serialization formats
+
+Advanced query capabilities
+
+Metric aggregation filters
+
+Anomaly detection hooks
+
+Distributed tracing correlation
+
+
+
+Key Components Explained:
+Dependencies:
+
+ASM: Core bytecode manipulation library
+
+RocksDB JNI: Native RocksDB bindings for Java
+
+SLF4J: Logging facade (marked as provided to avoid conflicts)
+
+JUnit: Testing framework
+
+Build Configuration:
+
+Java 11 compatibility
+
+UTF-8 encoding for source files
+
+Resource filtering for configuration files
+
+Assembly Plugin:
+
+Creates a fat JAR with all dependencies
+
+Sets required manifest attributes for Java agents:
+
+Premain-Class: Entry point for the agent
+
+Can-Redefine-Classes: Allows class redefinition
+
+Can-Retransform-Classes: Enables class retransformation
+
+Boot-Class-Path: Ensures proper dependency loading
+
+RocksDB Considerations:
+
+The rocksdbjni dependency includes native libraries
+
+Requires compatible architecture (automatically handled)
+
+Persistent storage location configured via properties
+
+This configuration ensures:
+
+Proper packaging of all required dependencies
+
+Correct Java agent manifest configuration
+
+Compatibility with Java 11+ applications
+
+Efficient RocksDB storage integration
+
+Minimal classloading conflicts with target applications
+
+Note: For production use, you might want to add:
+
+ProGuard configuration for code shrinking
+
+Proper logging implementation
+
+Additional error handling
+
+Metric serialization optimizations
+

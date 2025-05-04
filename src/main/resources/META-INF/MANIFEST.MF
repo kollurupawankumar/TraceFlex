@@ -1,0 +1,2 @@
+Premain-Class: agent.AgentMain
+Can-Redefine-Classes: true
