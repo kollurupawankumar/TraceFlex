@@ -58,13 +58,24 @@ public class MethodInterceptorTransformer implements ClassFileTransformer {
 
             CtMethod[] ctMethods = ctClass.getDeclaredMethods();
             for (CtMethod ctMethod : ctMethods) {
+                String methodKey = ctClass.getName() + "." + ctMethod.getName();
                 ctMethod.addLocalVariable("startTime", CtClass.longType);
                 ctMethod.addLocalVariable("executionTime", CtClass.longType);
 
-                ctMethod.insertBefore("{ startTime = System.currentTimeMillis(); }");
-                ctMethod.insertAfter("{ executionTime = System.currentTimeMillis() - startTime; " +
-                        "agent.helper.StatsHelper.updateStats(executionTime, " + statInterval + "L); }");
+                ctMethod.insertBefore("startTime = System.currentTimeMillis();"
+                        + "agent.trace.TraceContext.enter(\"" + ctClass.getName() + "." + ctMethod.getName() + "\");"
+                );
 
+                ctMethod.insertAfter(
+                        "{ executionTime = System.currentTimeMillis() - startTime;" +
+                                "agent.trace.TraceContext.exit();" +
+                                "agent.helper.StatsHelper.updateStats(\"" + methodKey + "\", executionTime, " + statInterval + "L); }"
+                );
+
+                /**for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
+                    ctMethod.insertBefore("agent.trace.TraceContext.enter(\"" + ctClass.getName() + "." + ctMethod.getName() + "\");");
+                    ctMethod.insertAfter("agent.trace.TraceContext.exit();", true);
+                } **/
 
             }
 
